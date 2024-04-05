@@ -559,14 +559,14 @@ class PeriodicTask(models.Model):
         self.queue = self.queue or None
         self.headers = self.headers or None
         if self.start_time:
-            self.start_time = self.start_time - timedelta(hours=3)
-            print(self.start_time)
-            print(datetime.now())
-            print(settings.TIME_ZONE)
-            print(datetime.utcnow())
+            local_utc_time_diff = pytz.timezone(self.timezone).utcoffset(None).total_seconds() / 3600
+            print(local_utc_time_diff)
+            self.start_time = self.start_time - timedelta(hours=local_utc_time_diff)
+            
         if self.expires:
-            self.expires = self.expires - timedelta(hours=3)
-            print(self.expires)
+            local_utc_time_diff = pytz.timezone(self.timezone).utcoffset(None).total_seconds() / 3600
+            self.expires = self.expires - timedelta(hours=local_utc_time_diff)
+
         if not self.enabled:
             self.last_run_at = None
         self._clean_expires()
