@@ -553,7 +553,9 @@ class PeriodicTask(models.Model):
             raise ValidationError(err_msg)
 
     def save(self, *args, **kwargs):
+        print(settings.TIME_ZONE)
         settings.TIME_ZONE = self.timezone
+        print(settings.TIME_ZON )
         self.exchange = self.exchange or None
         self.routing_key = self.routing_key or None
         self.queue = self.queue or None
