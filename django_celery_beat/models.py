@@ -478,6 +478,12 @@ class PeriodicTask(models.Model):
             'Datetime when the schedule should begin '
             'triggering the task to run'),
     )
+    timezone = timezone_field.TimeZoneField(
+        default='Europe/Istanbul',
+        verbose_name=_('Periodic Task Timezone'),
+        help_text=_(
+            'Timezone for setting default timezone.  Default is Europe/Istanbul.'),
+    )
     enabled = models.BooleanField(
         default=True,
         verbose_name=_('Enabled'),
@@ -547,6 +553,7 @@ class PeriodicTask(models.Model):
             raise ValidationError(err_msg)
 
     def save(self, *args, **kwargs):
+        settings.TIME_ZONE = self.timezone
         self.exchange = self.exchange or None
         self.routing_key = self.routing_key or None
         self.queue = self.queue or None
