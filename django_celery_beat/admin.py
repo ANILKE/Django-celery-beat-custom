@@ -130,7 +130,7 @@ class PeriodicTaskAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     fieldsets = (
         (None, {
-            'fields': ('name', 'regtask', 'task', 'enabled', 'description', 'timezone'),
+            'fields': ('name', 'regtask', 'task', 'enabled', 'description'),
             'classes': ('extrapretty', 'wide'),
         }),
         ('Schedule', {

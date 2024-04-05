@@ -479,12 +479,12 @@ class PeriodicTask(models.Model):
             'Datetime when the schedule should begin '
             'triggering the task to run'),
     )
-    timezone = timezone_field.TimeZoneField(
-        default='Europe/Istanbul',
-        verbose_name=_('Periodic Task Timezone'),
-        help_text=_(
-            'Timezone for setting default timezone.  Default is Europe/Istanbul.'),
-    )
+    # timezone = timezone_field.TimeZoneField(
+    #     default='Europe/Istanbul',
+    #     verbose_name=_('Periodic Task Timezone'),
+    #     help_text=_(
+    #         'Timezone for setting default timezone.  Default is Europe/Istanbul.'),
+    # )
     enabled = models.BooleanField(
         default=True,
         verbose_name=_('Enabled'),
@@ -582,47 +582,47 @@ class PeriodicTask(models.Model):
         self.exchange = self.exchange or None
         self.routing_key = self.routing_key or None
         self.queue = self.queue or None
-        self.headers = self.headers or None
-        # Create a timezone object using the string
-        local_timezone = pytz.timezone(str(self.timezone))
-        # Get the current local time in the specified timezone
-        local_time_with_tz = datetime.now(local_timezone)
-        # Get the current UTC time
-        utc_time = datetime.utcnow().replace(tzinfo=pytz.utc)
-        # Calculate the time difference
-        time_difference = local_time_with_tz.utcoffset() - utc_time.utcoffset()
-        if self.pk is None:
-            if self.start_time:
-                self.start_time = self.start_time - time_difference
-                self.last_start = self.start_time
-            if self.expires:
-                self.expires = self.expires - time_difference
-                self.last_expires = self.expires
-        else:
-            if self.start_time:
-                if self.last_start:
-                    if self.last_start != self.start_time:
-                        self.start_time = self.start_time - time_difference
-                        self.last_start = self.start_time
-                else:
-                    self.start_time = self.start_time - time_difference
-                    self.last_start = self.start_time
-            if self.expires:
-                if self.last_expires:
-                    if self.last_expires != self.expires:
-                        self.expires = self.expires - time_difference
-                        self.last_expires = self.expires
-                else:
-                    self.expires = self.expires - time_difference
-                    self.last_expires = self.expires
-        if self.last_run_at:
-            if self.last_run:
-                if self.last_run != self.last_run_at:
-                    self.last_run_at = self.last_run_at - time_difference
-                    self.last_run = self.last_run_at
-            else:
-                self.last_run_at = self.last_run_at - time_difference
-                self.last_run = self.last_run_at
+        # self.headers = self.headers or None
+        # # Create a timezone object using the string
+        # local_timezone = pytz.timezone(str(self.timezone))
+        # # Get the current local time in the specified timezone
+        # local_time_with_tz = datetime.now(local_timezone)
+        # # Get the current UTC time
+        # utc_time = datetime.utcnow().replace(tzinfo=pytz.utc)
+        # # Calculate the time difference
+        # time_difference = local_time_with_tz.utcoffset() - utc_time.utcoffset()
+        # if self.pk is None:
+        #     if self.start_time:
+        #         self.start_time = self.start_time - time_difference
+        #         self.last_start = self.start_time
+        #     if self.expires:
+        #         self.expires = self.expires - time_difference
+        #         self.last_expires = self.expires
+        # else:
+        #     if self.start_time:
+        #         if self.last_start:
+        #             if self.last_start != self.start_time:
+        #                 self.start_time = self.start_time - time_difference
+        #                 self.last_start = self.start_time
+        #         else:
+        #             self.start_time = self.start_time - time_difference
+        #             self.last_start = self.start_time
+        #     if self.expires:
+        #         if self.last_expires:
+        #             if self.last_expires != self.expires:
+        #                 self.expires = self.expires - time_difference
+        #                 self.last_expires = self.expires
+        #         else:
+        #             self.expires = self.expires - time_difference
+        #             self.last_expires = self.expires
+        # if self.last_run_at:
+        #     if self.last_run:
+        #         if self.last_run != self.last_run_at:
+        #             self.last_run_at = self.last_run_at - time_difference
+        #             self.last_run = self.last_run_at
+        #     else:
+        #         self.last_run_at = self.last_run_at - time_difference
+        #         self.last_run = self.last_run_at
         if not self.enabled:
             self.last_run_at = None
             last_run = None
