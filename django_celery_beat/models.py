@@ -499,6 +499,14 @@ class PeriodicTask(models.Model):
             'Datetime that the schedule last triggered the task to run. '
             'Reset to None if enabled is set to False.'),
     )
+    last_run = models.DateTimeField(
+        auto_now=False, auto_now_add=False,
+        editable=False, blank=True, null=True,
+        verbose_name=_('Last Run Datetime'),
+        help_text=_(
+            'Datetime that the schedule last triggered the task to run. '
+            'Reset to None if enabled is set to False.'),
+    )
     total_run_count = models.PositiveIntegerField(
         default=0, editable=False,
         verbose_name=_('Total Run Count'),
@@ -555,6 +563,7 @@ class PeriodicTask(models.Model):
             raise ValidationError(err_msg)
 
     def save(self, *args, **kwargs):
+        global last_run
         self.exchange = self.exchange or None
         self.routing_key = self.routing_key or None
         self.queue = self.queue or None
@@ -573,15 +582,16 @@ class PeriodicTask(models.Model):
             if self.expires:
                 self.expires = self.expires - time_difference
         if self.last_run_at:
-            if last_run:
-                if last_run != self.last_run_at:
+            if self.last_run:
+                if self.last_run != self.last_run_at:
                     self.last_run_at = self.last_run_at - time_difference
-                    last_run = self.last_run_at
+                    self.last_run = self.last_run_at
             else:
                 self.last_run_at = self.last_run_at - time_difference
-                last_run = self.last_run_at
+                self.last_run = self.last_run_at
         if not self.enabled:
             self.last_run_at = None
+            last_run = None
         
         self._clean_expires()
         self.validate_unique()
