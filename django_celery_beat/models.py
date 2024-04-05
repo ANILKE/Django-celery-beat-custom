@@ -1,7 +1,7 @@
 """Database models."""
 from __future__ import absolute_import, unicode_literals
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 import pytz
 
 import timezone_field
@@ -559,10 +559,11 @@ class PeriodicTask(models.Model):
         self.queue = self.queue or None
         self.headers = self.headers or None
         if self.start_time:
-            self.start_time = self.start_time.astimezone(pytz.utc)
+            self.start_time = self.start_time - timedelta(hours=3)
             print(self.start_time)
+            print(datetime.now())
         if self.expires:
-            self.expires = self.expires.astimezone(pytz.utc)
+            self.expires = self.expires - timedelta(hours=3)
             print(self.expires)
         if not self.enabled:
             self.last_run_at = None
