@@ -562,6 +562,8 @@ class PeriodicTask(models.Model):
             self.start_time = self.start_time - timedelta(hours=3)
             print(self.start_time)
             print(datetime.now())
+            print(settings.TIME_ZONE)
+            print(datetime.utcnow())
         if self.expires:
             self.expires = self.expires - timedelta(hours=3)
             print(self.expires)
