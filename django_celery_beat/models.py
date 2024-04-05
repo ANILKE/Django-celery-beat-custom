@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from datetime import timedelta
+import pytz
 
 import timezone_field
 from celery import schedules
@@ -553,13 +554,16 @@ class PeriodicTask(models.Model):
             raise ValidationError(err_msg)
 
     def save(self, *args, **kwargs):
-        print(settings.TIME_ZONE)
-        settings.TIME_ZONE = self.timezone
-        print(settings.TIME_ZONE)
         self.exchange = self.exchange or None
         self.routing_key = self.routing_key or None
         self.queue = self.queue or None
         self.headers = self.headers or None
+        if self.start_time:
+            self.start_time = self.start_time.astimezone(pytz.utc)
+            print(self.start_time)
+        if self.expires:
+            self.expires = self.expires.astimezone(pytz.utc)
+            print(self.expires)
         if not self.enabled:
             self.last_run_at = None
         self._clean_expires()
