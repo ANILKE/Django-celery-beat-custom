@@ -558,15 +558,18 @@ class PeriodicTask(models.Model):
         self.routing_key = self.routing_key or None
         self.queue = self.queue or None
         self.headers = self.headers or None
+        # Create a timezone object using the string
+        local_timezone = pytz.timezone(str(self.timezone))
+        # Get the current local time in the specified timezone
+        local_time_with_tz = datetime.now(local_timezone)
+        # Get the current UTC time
+        utc_time = datetime.utcnow().replace(tzinfo=pytz.utc)
+        # Calculate the time difference
+        time_difference = local_time_with_tz.utcoffset() - utc_time.utcoffset()
         if self.start_time:
-            local_utc_time_diff = pytz.timezone(self.timezone).utcoffset(None).total_seconds() / 3600
-            print(local_utc_time_diff)
-            self.start_time = self.start_time - timedelta(hours=local_utc_time_diff)
-            
+            self.start_time = self.start_time - time_difference
         if self.expires:
-            local_utc_time_diff = pytz.timezone(self.timezone).utcoffset(None).total_seconds() / 3600
-            self.expires = self.expires - timedelta(hours=local_utc_time_diff)
-
+            self.expires = self.expires - time_difference
         if not self.enabled:
             self.last_run_at = None
         self._clean_expires()
