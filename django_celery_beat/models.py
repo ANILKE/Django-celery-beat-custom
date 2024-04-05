@@ -36,6 +36,7 @@ PERIOD_CHOICES = (
 
 SOLAR_SCHEDULES = [(x, _(x)) for x in sorted(schedules.solar._all_events)]
 
+last_run = None
 
 def cronexp(field):
     """Representation of cron expression."""
@@ -566,12 +567,22 @@ class PeriodicTask(models.Model):
         utc_time = datetime.utcnow().replace(tzinfo=pytz.utc)
         # Calculate the time difference
         time_difference = local_time_with_tz.utcoffset() - utc_time.utcoffset()
-        if self.start_time:
-            self.start_time = self.start_time - time_difference
-        if self.expires:
-            self.expires = self.expires - time_difference
+        if self.pk is None:
+            if self.start_time:
+                self.start_time = self.start_time - time_difference
+            if self.expires:
+                self.expires = self.expires - time_difference
+        if self.last_run_at:
+            if last_run:
+                if last_run != self.last_run_at:
+                    self.last_run_at = self.last_run_at - time_difference
+                    last_run = self.last_run_at
+            else:
+                self.last_run_at = self.last_run_at - time_difference
+                last_run = self.last_run_at
         if not self.enabled:
             self.last_run_at = None
+        
         self._clean_expires()
         self.validate_unique()
         super(PeriodicTask, self).save(*args, **kwargs)
