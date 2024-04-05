@@ -36,7 +36,6 @@ PERIOD_CHOICES = (
 
 SOLAR_SCHEDULES = [(x, _(x)) for x in sorted(schedules.solar._all_events)]
 
-last_run = None
 
 def cronexp(field):
     """Representation of cron expression."""
@@ -507,6 +506,22 @@ class PeriodicTask(models.Model):
             'Datetime that the schedule last triggered the task to run. '
             'Reset to None if enabled is set to False.'),
     )
+    last_start = models.DateTimeField(
+        auto_now=False, auto_now_add=False,
+        editable=False, blank=True, null=True,
+        verbose_name=_('Last Run Datetime'),
+        help_text=_(
+            'Datetime that the schedule last triggered the task to run. '
+            'Reset to None if enabled is set to False.'),
+    )
+    last_expires = models.DateTimeField(
+        auto_now=False, auto_now_add=False,
+        editable=False, blank=True, null=True,
+        verbose_name=_('Last Run Datetime'),
+        help_text=_(
+            'Datetime that the schedule last triggered the task to run. '
+            'Reset to None if enabled is set to False.'),
+    )
     total_run_count = models.PositiveIntegerField(
         default=0, editable=False,
         verbose_name=_('Total Run Count'),
@@ -579,8 +594,27 @@ class PeriodicTask(models.Model):
         if self.pk is None:
             if self.start_time:
                 self.start_time = self.start_time - time_difference
+                self.last_start = self.start_time
             if self.expires:
                 self.expires = self.expires - time_difference
+                self.last_expires = self.expires
+        else:
+            if self.start_time:
+                if self.last_start:
+                    if self.last_start != self.start_time:
+                        self.start_time = self.start_time - time_difference
+                        self.last_start = self.start_time
+                else:
+                    self.start_time = self.start_time - time_difference
+                    self.last_start = self.start_time
+            if self.expires:
+                if self.last_expires:
+                    if self.last_expires != self.expires:
+                        self.expires = self.expires - time_difference
+                        self.last_expires = self.expires
+                else:
+                    self.expires = self.expires - time_difference
+                    self.last_expires = self.expires
         if self.last_run_at:
             if self.last_run:
                 if self.last_run != self.last_run_at:
