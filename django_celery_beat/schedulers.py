@@ -147,6 +147,7 @@ class ModelEntry(ScheduleEntry):
             now = self.app.now()
             now = now.tzinfo.localize(now.replace(tzinfo=None))
         else:
+            print("asdasdasd")
             # this ends up getting passed to maybe_make_aware, which expects
             # all naive datetime objects to be in utc time.
             now = datetime.datetime.utcnow()
